@@ -203,3 +203,25 @@ ggplot(data = application_volume, aes(x = TERM_CODE, y = VOLUME)) +
   labs(title = "Scatter Plot of VOLUME vs TERM_CODE",
        x = "TERM_CODE",
        y = "VOLUME")
+
+# FORECASTING on YEARENTERED and VOLUME
+library(forecast)
+# Convert YEARENTERED to date format
+application_volume$YEARENTERED <- as.Date(paste0(application_volume$YEARENTERED, "-01-01"))
+
+
+# Aggregate the data by year and calculate the sum of VOLUME
+ts_data <- aggregate(application_volume$VOLUME, by = list(application_volume$YEARENTERED), sum)
+
+# Convert the data to a time series object
+ts_data <- ts(ts_data$x, frequency = 1, start = c(2008))
+
+# Plot the time series data
+plot(ts_data, main = "Application Volume Over Time", ylab = "Volume", xlab = "Year")
+
+# Fit an ARIMA model and generate a forecast
+fit <- auto.arima(ts_data)
+forecast <- forecast(fit, h = 5)
+
+# Plot the forecast
+plot(forecast, main = "Forecasted Application Volume", xlab = "Year", ylab = "Volume")
